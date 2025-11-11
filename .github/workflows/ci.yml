@@ -1,0 +1,44 @@
+name: Node CI
+
+on:
+  push:
+    branches:
+     - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # container:
+    #   image: node:18-buster
+    #   options: --privileged
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t fernandmesange/achetez_en_chine_api .
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      - name: Push Docker image to Docker Hub
+        run: docker push fernandmesange/achetez_en_chine_api
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/achetez_en_chine/api
+            # Assure la mise à jour de l'image la plus récente
+            docker-compose pull
+            
+            # Stopper et enlever les conteneurs existants si besoin
+            docker-compose down
+
+            # Relancer en arrière-plan
+            docker-compose up -d
+

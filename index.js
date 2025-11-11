@@ -24,7 +24,7 @@ const app = express();
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://transitchina.mrg-tech.com', 'http://localhost:5174', 'https://www.transitchina.xyz'],
+  origin: ['http://localhost:5173', 'https://transitchina.xyx', 'http://localhost:5174', 'https://www.transitchina.xyz'],
   credentials: true,
 }));
 
